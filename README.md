@@ -3,7 +3,7 @@
 This repository contains structured notes, illustrations, and key concepts to help you understand Apache Kafka from the ground up.
 
 ## Topics Covered
-- 
+
 - [What is Kafka and What is Event-Driven Architecture](notes/what-is-kafka-and-event-driven-architecture.md)
 - [Why was Kafka Created?](notes/why-kafka-was-created.md)
 - [Kafka Benefits & Why it's the Best Choice for Messaging Systems](notes/kafka-benefits-and-advantages.md)
