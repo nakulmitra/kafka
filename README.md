@@ -58,28 +58,123 @@ bin/kafka-topics.sh --create \
 
 ## Kafka CLI Commands
 
-### List Topics
+### Common Assumptions
+
+* Kafka is downloaded and extracted (e.g., in `~/kafka_2.13-3.6.1/`)
+* Kafka is running on `localhost:9092`
+* Zookeeper is running (if using pre-KRaft versions)
+* Java is installed and in your `PATH`
+
+### Folder Structure
+
+Assume the Kafka folder is referred to as:
+
+* **Linux/macOS**: `~/kafka`
+* **Windows**: `C:\kafka`
+  (or the full path where you extracted Kafka)
+
+### 1. Start Zookeeper (if not using KRaft mode)
+
+#### Mac/Linux
+
+```bash
+bin/zookeeper-server-start.sh config/zookeeper.properties
+```
+
+#### Windows
+
+```cmd
+bin\windows\zookeeper-server-start.bat config\zookeeper.properties
+```
+
+### 2. Start Kafka Broker
+
+#### Mac/Linux
+
+```bash
+bin/kafka-server-start.sh config/server.properties
+```
+
+#### Windows
+
+```cmd
+bin\windows\kafka-server-start.bat config\server.properties
+```
+
+### 3. Create a Topic
+
+#### Mac/Linux
+
+```bash
+bin/kafka-topics.sh --create --topic my-topic \
+  --bootstrap-server localhost:9092 \
+  --partitions 1 --replication-factor 1
+```
+
+#### Windows
+
+```cmd
+bin\windows\kafka-topics.bat --create --topic my-topic ^
+  --bootstrap-server localhost:9092 ^
+  --partitions 1 --replication-factor 1
+```
+
+### 4. List Topics
+
+#### Mac/Linux
 
 ```bash
 bin/kafka-topics.sh --list --bootstrap-server localhost:9092
 ```
 
-### Describe Topic
+#### Windows
 
-```bash
-bin/kafka-topics.sh --describe --topic test-topic --bootstrap-server localhost:9092
+```cmd
+bin\windows\kafka-topics.bat --list --bootstrap-server localhost:9092
 ```
 
-### Produce Messages
+### 5. Produce Messages
+
+#### Mac/Linux
 
 ```bash
-bin/kafka-console-producer.sh --topic test-topic --bootstrap-server localhost:9092
+bin/kafka-console-producer.sh --topic my-topic --bootstrap-server localhost:9092
 ```
 
-### Consume Messages
+#### Windows
+
+```cmd
+bin\windows\kafka-console-producer.bat --topic my-topic --bootstrap-server localhost:9092
+```
+
+* Start typing messages and press `Enter` after each one.
+
+### 6. Consume Messages
+
+#### Mac/Linux
 
 ```bash
-bin/kafka-console-consumer.sh --topic test-topic --from-beginning --bootstrap-server localhost:9092
+bin/kafka-console-consumer.sh --topic my-topic --from-beginning --bootstrap-server localhost:9092
+```
+
+#### Windows
+
+```cmd
+bin\windows\kafka-console-consumer.bat --topic my-topic --from-beginning --bootstrap-server localhost:9092
+```
+
+### 7. Delete Topic (Optional)
+
+#### Mac/Linux
+
+```bash
+bin/kafka-topics.sh --delete --topic my-topic --bootstrap-server localhost:9092
+```
+
+#### Windows
+
+```cmd
+bin\windows\kafka-topics.bat --delete --topic my-topic --bootstrap-server localhost:9092
 ```
 
 ## Kafka with Spring Boot
