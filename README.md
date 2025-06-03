@@ -277,6 +277,112 @@ public class KafkaConsumer {
 }
 ```
 
+In Kafka (using Java/Spring or plain Kafka Java API), we can send messages both **synchronously** and **asynchronously** using the `KafkaProducer` API or Spring's `KafkaTemplate`.
+
+## 1. **Using Kafka Producer (Plain Java API)**
+
+### Setup
+
+Make sure to include the Kafka client dependency:
+
+```xml
+<dependency>
+    <groupId>org.apache.kafka</groupId>
+    <artifactId>kafka-clients</artifactId>
+    <version>3.6.1</version>
+</dependency>
+```
+
+### Producer Config
+
+```java
+Properties props = new Properties();
+props.put("bootstrap.servers", "localhost:9092");
+props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+
+KafkaProducer<String, String> producer = new KafkaProducer<>(props);
+```
+
+### Sync Send
+
+```java
+try {
+    RecordMetadata metadata = producer.send(new ProducerRecord<>("my-topic", "key", "Hello Kafka")).get(); // Blocks
+    System.out.printf("Sent sync: partition=%d, offset=%d%n", metadata.partition(), metadata.offset());
+} catch (Exception e) {
+    e.printStackTrace();
+}
+```
+
+> `.get()` blocks until the message is acknowledged or failed.
+
+### Async Send
+
+```java
+producer.send(new ProducerRecord<>("my-topic", "key", "Hello Kafka"), (metadata, exception) -> {
+    if (exception == null) {
+        System.out.printf("Sent async: partition=%d, offset=%d%n", metadata.partition(), metadata.offset());
+    } else {
+        exception.printStackTrace();
+    }
+});
+```
+
+> Async uses a callback and does **not block**.
+
+## 2. **Using KafkaTemplate (Spring Boot)**
+
+In Spring Boot, `KafkaTemplate` abstracts this and supports both sync and async.
+
+### Auto Configuration
+
+Spring Boot auto-configures `KafkaTemplate` if `spring-kafka` is in your `pom.xml`.
+
+### Async Send (default)
+
+```java
+@Autowired
+private KafkaTemplate<String, String> kafkaTemplate;
+
+public void sendAsync() {
+    kafkaTemplate.send("my-topic", "Hello from Kafka (async)")
+        .addCallback(
+            result -> {
+                if (result != null) {
+                    System.out.println("Sent async to partition: " + result.getRecordMetadata().partition());
+                }
+            },
+            ex -> System.err.println("Send failed: " + ex.getMessage())
+        );
+}
+```
+
+### Sync Send
+
+```java
+public void sendSync() {
+    try {
+        SendResult<String, String> result = kafkaTemplate
+            .send("my-topic", "Hello from Kafka (sync)")
+            .get(); // blocks
+
+        System.out.println("Sent sync to partition: " + result.getRecordMetadata().partition());
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+}
+```
+
+> `.get()` on the returned `ListenableFuture` blocks until the broker acknowledges.
+
+## Notes
+
+| Sync vs Async | Characteristics                                                        |
+| ------------- | ---------------------------------------------------------------------- |
+| Sync        | Blocks the thread, waits for acknowledgment, easier to handle failures |
+| Async       | Non-blocking, better performance, needs callback to handle errors      |
+
 ## Summary
 
 Apache Kafka is a powerful distributed streaming platform used to build real-time data pipelines and applications. This guide covered its architecture, setup, CLI usage, and integration with Spring Boot.
